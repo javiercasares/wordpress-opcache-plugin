@@ -311,16 +311,19 @@ class Flush_Opcache_Admin {
 	 */
 	public function flush_opcache_reset() {
 		$opcache_scripts = array();
-		if ( function_exists( 'opcache_get_status' ) ) {
-			try {
-				$raw = opcache_get_status( true );
-				if ( array_key_exists( 'scripts', $raw ) ) {
-					foreach ( $raw['scripts'] as $script ) {
-						/* Remove files outside of WP */
-						if ( false === strpos( $script['full_path'], get_home_path() ) && false === strpos( $script['full_path'], ABSPATH ) ) {
-							continue;
-						}
-						array_push( $opcache_scripts, $script['full_path'] );
+                if ( function_exists( 'opcache_get_status' ) ) {
+                        try {
+                                $raw = opcache_get_status( true );
+                                if ( is_array( $raw ) && isset( $raw['scripts'] ) && is_array( $raw['scripts'] ) ) {
+                                        foreach ( $raw['scripts'] as $script ) {
+                                                if ( ! is_array( $script ) || empty( $script['full_path'] ) ) {
+                                                        continue;
+                                                }
+                                                /* Remove files outside of WP */
+                                                if ( false === strpos( $script['full_path'], get_home_path() ) && false === strpos( $script['full_path'], ABSPATH ) ) {
+                                                        continue;
+                                                }
+                                                array_push( $opcache_scripts, $script['full_path'] );
 					}
 				}
 			} catch ( \Throwable $e ) {
